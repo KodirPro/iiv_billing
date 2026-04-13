@@ -1,0 +1,122 @@
+generator client {
+  provider = "prisma-client-js"
+  output   = "../node_modules/.prisma/client"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum EProvider {
+  CLICK
+  PAYME
+  PAYNET
+  UZUM
+}
+
+enum EAccountStatus {
+  ACTIVE
+  INACTIVE
+}
+
+enum ETransactionStatus {
+  PENDING
+  PAID
+  CANCELLED
+}
+
+enum EPaymentType {
+  for_contract
+  for_pult
+}
+
+model Regions {
+  id              Int         @id @default(autoincrement()) @db.SmallInt
+  guid            String      @db.VarChar(36)
+  name            String      @db.VarChar(50)
+  clickMerchantId String?     @db.VarChar(50)
+  paymeMerchantId String?     @db.VarChar(50)
+  uzumMerchantId  String?     @db.VarChar(50)
+  districts       Districts[]
+  accounts        Accounts[]
+}
+
+model Districts {
+  id       Int        @id @default(autoincrement()) @db.SmallInt
+  guid     String     @db.VarChar(36)
+  name     String     @db.VarChar(50)
+  region   Regions    @relation(fields: [regionId], references: [id], onDelete: Restrict, onUpdate: Restrict)
+  regionId Int
+  accounts Accounts[]
+}
+
+model Accounts {
+  id           Int            @id @default(autoincrement())
+  guid         String         @db.VarChar(36)
+  status       EAccountStatus @default(ACTIVE)
+  contract     String?        @db.VarChar(20)
+  pult         String?        @db.VarChar(20)
+  fullname     String?
+  phone        String?        @db.VarChar(255)
+  address      String?
+  region       Regions        @relation(fields: [regionId], references: [id], onDelete: Restrict, onUpdate: Restrict)
+  regionId     Int            @db.SmallInt
+  district     Districts      @relation(fields: [districtId], references: [id], onDelete: Restrict, onUpdate: Restrict)
+  districtId   Int            @db.SmallInt
+  balance      Int            @default(0)
+  createdAt    DateTime       @default(now()) @db.Timestamptz(5)
+  updatedAt    DateTime       @updatedAt @db.Timestamptz(5)
+  // orders       Orders[]
+  transactions Transactions[]
+}
+
+model Payments {
+  id             Int       @id @default(autoincrement())
+  registryNumber Int
+  sum            Decimal   @db.Decimal(15, 2)
+  commission     Decimal   @db.Decimal(15, 2)
+  amount         Decimal   @db.Decimal(15, 2)
+  date           DateTime  @default(now()) @updatedAt
+  provider       EProvider
+}
+
+// model Orders {
+//   id           BigInt         @id @default(autoincrement())
+//   amount       Int
+//   account      Accounts       @relation(fields: [accountId], references: [id], onDelete: Restrict, onUpdate: Restrict)
+//   accountId    Int
+//   status       ETransactionStatus        @default(PENDING)
+//   provider     EProvider
+//   createdAt    DateTime       @default(now())
+//   transactions Transactions[]
+// }
+
+model Transactions {
+  id           BigInt             @id @default(autoincrement())
+  transId      String?            @db.VarChar(50)
+  amount       Int
+  createdTime  DateTime           @default(now())
+  performTime  DateTime?
+  cancelTime   DateTime?
+  reason       Int?
+  state        Int                @default(1)
+  status       ETransactionStatus @default(PENDING)
+  provider     EProvider
+  merchantId   String?            @db.VarChar(50)
+  account      Accounts           @relation(fields: [accountId], references: [id], onDelete: Restrict, onUpdate: Restrict)
+  accountId    Int
+  payment_type EPaymentType?
+  // order       Orders?   @relation(fields: [orderId], references: [id], onDelete: Restrict, onUpdate: Restrict)
+  // orderId     BigInt?
+}
+
+model Unauthorized {
+  id            Int      @id @default(autoincrement())
+  referer       String?  @db.VarChar(255)
+  ip            String?  @db.VarChar(50)
+  xForwardedFor String?  @db.VarChar(255)
+  method        String?  @db.VarChar(20)
+  originalUrl   String?  @db.VarChar(50)
+  date          DateTime @default(now())
+}

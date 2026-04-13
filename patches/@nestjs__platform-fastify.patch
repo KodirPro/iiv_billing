@@ -1,0 +1,26 @@
+diff --git a/adapters/fastify-adapter.js b/adapters/fastify-adapter.js
+index 1ce82e2a50e1239c52b4ebd978cfe2c504a469ed..3ec6f0e3ad275ca99a35b0749661eb354acce1a2 100644
+--- a/adapters/fastify-adapter.js
++++ b/adapters/fastify-adapter.js
+@@ -8,7 +8,7 @@ const http_adapter_1 = require("@nestjs/core/adapters/http-adapter");
+ const fastify_1 = require("fastify");
+ const Reply = require("fastify/lib/reply");
+ const symbols_1 = require("fastify/lib/symbols");
+-const pathToRegexp = require("path-to-regexp");
++const { pathToRegexp } = require("path-to-regexp");
+ // `querystring` is used internally in fastify for registering urlencoded body parser.
+ const querystring_1 = require("querystring");
+ const constants_1 = require("../constants");
+diff --git a/package.json b/package.json
+index 6e730a64e8378f4bfa6cf08c8b80ae5baf7d2fc3..fd15395e855f2ff7c359ce74a0f62bcdba00e8e8 100644
+--- a/package.json
++++ b/package.json
+@@ -23,7 +23,7 @@
+     "@fastify/middie": "8.3.3",
+     "fastify": "4.28.1",
+     "light-my-request": "6.3.0",
+-    "path-to-regexp": "3.3.0",
++    "path-to-regexp": "^6.3.0",
+     "tslib": "2.8.1"
+   },
+   "peerDependencies": {
